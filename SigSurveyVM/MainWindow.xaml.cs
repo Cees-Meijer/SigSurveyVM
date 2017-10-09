@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using WPF.Themes;
 using System.Windows.Media;
+using SigSurveyVM.ViewModels;
 
 namespace SurveyVM
 {
@@ -22,6 +23,7 @@ namespace SurveyVM
         static SpectrogramViewModel spectrogramViewModel4 = new SpectrogramViewModel();
         static int SelectedChartView;
         TrackPlotViewModel trackPlot = new TrackPlotViewModel();
+        static StatusViewModel statusViewModel = new StatusViewModel();
 
         public MainWindow()
         {
@@ -31,9 +33,10 @@ namespace SurveyVM
             Image3.DataContext = spectrogramViewModel3;
             Image4.DataContext = spectrogramViewModel4;
             TrackPlot.DataContext = trackPlot;
-            GreenLight.Fill =  new SolidColorBrush(Colors.LawnGreen);
-            AD2CP_StatusText.Text = "AD2CP Status messages\r\nwill appear here.";
-            GPS_StatusText.Text = "GPS Status messages\r\nwill appear here.";
+            GreenLight.Fill = new SolidColorBrush(Colors.LawnGreen);
+            StatusPanel.DataContext = statusViewModel;
+            //AD2CP_StatusText.Text = "AD2CP Status messages\r\nwill appear here.";
+            //GPS_StatusText.Text = "GPS Status messages\r\nwill appear here.";
         }
 
         static ActionBlock<UdpReceiveResult> ProcessAD2CPData = new ActionBlock<UdpReceiveResult>(udp_received =>
@@ -67,12 +70,12 @@ namespace SurveyVM
                         spectrogramViewModel4.AddTrace(ADCP_Burst.correlationData[3]);
                         break;
                 }
-
                 //Console.WriteLine("V{0},{1},{2}", ADCP_Burst.velocityData[0][0], ADCP_Burst.velocityData[0][1], ADCP_Burst.velocityData[0][2]);
+               string adcp_text = string.Format("Ensemble: {0:000000} Time:{1:00}:{2:00}:{3:00}.{4:0000}\r\nAltimeter:{5},{6}", ADCP_Burst.ensembleCounter,ADCP_Burst.hour,ADCP_Burst.minute,ADCP_Burst.seconds,ADCP_Burst.microSeconds100,  ADCP_Burst.altimeterPresent, ADCP_Burst.altimeterDistance);
+                statusViewModel.AD2CP_StatusText = adcp_text;
 
             }
             //Console.WriteLine("Sync:{0:X} ID:{1:X} Size{2} Year:{3}", Header.Sync, Header.ID, Header.DataSize, ADCP_Burst.year + 1900);
-
         },
             // Specify a task scheduler from the current synchronization context
             // so that the action runs on the UI thread.

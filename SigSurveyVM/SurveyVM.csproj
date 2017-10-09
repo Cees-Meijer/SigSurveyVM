@@ -84,6 +84,7 @@
     </ApplicationDefinition>
     <Compile Include="AD2CP.cs" />
     <Compile Include="ViewModels\SpectrogramViewModel.cs" />
+    <Compile Include="ViewModels\StatusViewModel.cs" />
     <Compile Include="ViewModels\TrackPlotViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

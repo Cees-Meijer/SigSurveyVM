@@ -72,7 +72,7 @@
                 </oxy:Plot.Series>
             </oxy:Plot>
         </Grid>
-        <Border BorderThickness="2" CornerRadius="10" Height="170" Margin="10,0,10,10" Grid.Row="1" VerticalAlignment="Bottom">
+        <Border Name="StatusPanel" BorderThickness="2" CornerRadius="10" Height="170" Margin="10,0,10,10" Grid.Row="1" VerticalAlignment="Bottom">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="60*"/>
@@ -97,8 +97,8 @@
                 <Border Background="Gray" Grid.Column="0" Grid.Row="1" Margin="2,2,0,0" Height="56" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56" CornerRadius="3">
                     <Image Source="Images\satellite-gps-icon-86608.png" HorizontalAlignment="Left" Height="52" Margin="2,3,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50"/>
                 </Border>
-                <TextBox x:Name="AD2CP_StatusText" Grid.Column="3" HorizontalAlignment="Left" Height="56" Margin="0,2,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="289"/>
-                <TextBox x:Name="GPS_StatusText" Grid.Column="3" HorizontalAlignment="Left" Height="55" Margin="0,3,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="289"/>
+                <TextBox x:Name="_AD2CP_StatusText" Grid.Column="3" HorizontalAlignment="Left" Height="56" Margin="0,2,0,0" TextWrapping="Wrap" Text="{Binding AD2CP_StatusText}" VerticalAlignment="Top" Width="289" />
+                <TextBox x:Name="_GPS_StatusText" Grid.Column="3" HorizontalAlignment="Left" Height="55" Margin="0,3,0,0" Grid.Row="1" TextWrapping="Wrap" Text="{Binding GPS_StatusText}" VerticalAlignment="Top" Width="289" />
             </Grid>
         </Border>
 

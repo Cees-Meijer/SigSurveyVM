@@ -226,6 +226,18 @@ namespace AD2CPData
         public short[][] velocityData;
         public short[][] amplitudeData;
         public short[][] correlationData;
+        public float altimeterDistance;
+        public UInt16 altimeterQuality;
+        public UInt16 altimeterStatus;
+        public float ASTDistance;
+        public UInt16 ASTQuality;
+        public Int16 ASTOffset_100uS;
+        public float ASTPressure;
+        public byte[] altimeterSpares;
+        public UInt32 altimeterSamples;
+        public UInt16 altimeterSampleDistance;
+        public Int16[] altimeterRawData;
+        public UInt16[] echosounderData;
         public int dataCells;
         public int dataCoord;
         public int dataBeams;
@@ -236,14 +248,25 @@ namespace AD2CPData
         public bool velPresent;
         public bool ampPresent;
         public bool corrPresent;
+        public bool altimeterPresent;
+        public bool altimeterRawPresent;
+        public bool ASTPresent;
+        public bool echoSounderPresent;
+        public bool AHRSPresent;
+        public bool percentGoodPresent;
+        public bool StdDevPresent;
+
+
 
         public AD2CP_DataFormat3()
         {
             magnHxHyHz = new Int16[3];
             accl3D = new Int16[3];
-        }
+            altimeterSpares = new byte[8];
 
-        public void Read(BinaryReader b)
+    }
+
+    public void Read(BinaryReader b)
         {
             version = b.ReadByte();
             offsetOfData = b.ReadByte();
@@ -295,6 +318,13 @@ namespace AD2CPData
             velPresent = (headconfig & 0x20) != 0;
             ampPresent = (headconfig & 0x40) != 0;
             corrPresent = (headconfig & 0x80) != 0;
+            altimeterPresent= (headconfig & 0x100) != 0; 
+            altimeterRawPresent = (headconfig & 0x200) != 0;
+            ASTPresent = (headconfig & 0x400) != 0; 
+            echoSounderPresent = (headconfig & 0x800) != 0; 
+            AHRSPresent = (headconfig & 0x1000) != 0; 
+            percentGoodPresent = (headconfig & 0x2000) != 0;
+            StdDevPresent = (headconfig & 0x4000) != 0;
             if (velPresent)
             {
                 for (int c = 0; c < dataBeams; c++)
