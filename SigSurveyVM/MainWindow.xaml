@@ -93,7 +93,7 @@
                 <Ellipse x:Name="GreenLight1" Grid.Row="1" Grid.Column="1" Fill="{DynamicResource DisabledBorderBrush}" HorizontalAlignment="Left" Height="50" Margin="2,2,5,0" Stroke="Black" VerticalAlignment="Top" Width="50"/>
                 <Ellipse x:Name="RedLight1"  Grid.Row="1" Grid.Column="2" Fill="{DynamicResource DisabledBorderBrush}" HorizontalAlignment="Left" Height="50" Margin="2,2,5,0" Stroke="Black" VerticalAlignment="Top" Width="50"/>
 
-                <Button x:Name="Start" Grid.ColumnSpan="3" Content="START [F1]" Margin="0,1,0,0" Grid.Row="2" FontFamily="Arial" FontWeight="Bold" Click="Start_Click" HorizontalAlignment="Left" Width="177"/>
+                <Button x:Name="Start" Grid.ColumnSpan="3" Content="START [F1]" Margin="2,1,0,0" Grid.Row="2" FontFamily="Arial" FontWeight="Bold" Click="Start_Click" HorizontalAlignment="Left" Width="177"/>
                 <Border Background="Gray" Grid.Column="0" Grid.Row="1" Margin="2,2,0,0" Height="56" VerticalAlignment="Top" HorizontalAlignment="Left" Width="56" CornerRadius="3">
                     <Image Source="Images\satellite-gps-icon-86608.png" HorizontalAlignment="Left" Height="52" Margin="2,3,0,0" Grid.Row="1" VerticalAlignment="Top" Width="50"/>
                 </Border>
