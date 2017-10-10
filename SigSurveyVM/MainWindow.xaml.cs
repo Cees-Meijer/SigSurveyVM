@@ -9,6 +9,10 @@ using System.Windows.Controls;
 using WPF.Themes;
 using System.Windows.Media;
 using SigSurveyVM.ViewModels;
+using SigSurveyVM_Review;
+using System.Linq;
+using System.Threading;
+using System.Diagnostics;
 
 namespace SurveyVM
 {
@@ -22,7 +26,7 @@ namespace SurveyVM
         static SpectrogramViewModel spectrogramViewModel3 = new SpectrogramViewModel();
         static SpectrogramViewModel spectrogramViewModel4 = new SpectrogramViewModel();
         static int SelectedChartView;
-        TrackPlotViewModel trackPlot = new TrackPlotViewModel();
+        static TrackPlotViewModel trackPlot = new TrackPlotViewModel();
         static StatusViewModel statusViewModel = new StatusViewModel();
 
         public MainWindow()
@@ -33,11 +37,20 @@ namespace SurveyVM
             Image3.DataContext = spectrogramViewModel3;
             Image4.DataContext = spectrogramViewModel4;
             TrackPlot.DataContext = trackPlot;
+                   
             GreenLight.Fill = new SolidColorBrush(Colors.LawnGreen);
             StatusPanel.DataContext = statusViewModel;
-            //AD2CP_StatusText.Text = "AD2CP Status messages\r\nwill appear here.";
-            //GPS_StatusText.Text = "GPS Status messages\r\nwill appear here.";
+ 
         }
+       static ActionBlock<string> ProcessGPSData = new ActionBlock<string>(GPS_Sentence =>
+       {
+           statusViewModel.GPS_StatusText = GPS_Sentence;
+           NMEADecoder.Decode(GPS_Sentence);
+           var N = NMEADecoder.NavigationData.Last();
+           trackPlot.YAxisMinimum = N.Lat-0.05; trackPlot.YAxisMaximum = N.Lat + 0.05;
+           trackPlot.XAxisMinimum = N.Lon - 0.05; trackPlot.XAxisMaximum = N.Lon + 0.05;
+           trackPlot.Points.Add(new OxyPlot.DataPoint(N.Lon, N.Lat));
+       });
 
         static ActionBlock<UdpReceiveResult> ProcessAD2CPData = new ActionBlock<UdpReceiveResult>(udp_received =>
         {
@@ -72,7 +85,7 @@ namespace SurveyVM
                 }
                 //Console.WriteLine("V{0},{1},{2}", ADCP_Burst.velocityData[0][0], ADCP_Burst.velocityData[0][1], ADCP_Burst.velocityData[0][2]);
                string adcp_text = string.Format("Ensemble: {0:000000} Time:{1:00}:{2:00}:{3:00}.{4:0000}\r\nAltimeter:{5},{6}", ADCP_Burst.ensembleCounter,ADCP_Burst.hour,ADCP_Burst.minute,ADCP_Burst.seconds,ADCP_Burst.microSeconds100,  ADCP_Burst.altimeterPresent, ADCP_Burst.altimeterDistance);
-                statusViewModel.AD2CP_StatusText = adcp_text;
+               statusViewModel.AD2CP_StatusText = adcp_text;
 
             }
             //Console.WriteLine("Sync:{0:X} ID:{1:X} Size{2} Year:{3}", Header.Sync, Header.ID, Header.DataSize, ADCP_Burst.year + 1900);
@@ -96,7 +109,7 @@ namespace SurveyVM
                     {
                         //IPEndPoint object will allow us to read datagrams sent from any source.
                         var receivedResults = await udpClient.ReceiveAsync();
-
+                        long TimeStamp = Stopwatch.GetTimestamp();
                         using (Stream DestinationWriter = File.Open("DATA_LOG.BIN", FileMode.Append))
                         {
                             await DestinationWriter.WriteAsync(receivedResults.Buffer, 0, receivedResults.Buffer.Length);
@@ -107,9 +120,24 @@ namespace SurveyVM
             });
         }
 
+        private static void GPSReader()
+        {
+            string[] GPS_Data;
+            GPS_Data = File.ReadAllLines("GPS_TEST.TXT");
+            Task.Run(async () =>
+            {
+                for (int Line = 0;Line< GPS_Data.Length; Line++)
+                {
+                    ProcessGPSData.Post(GPS_Data[Line]);
+                    Thread.Sleep(100);
+;                }
+            });
+        }
+
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             UDPListener();
+            GPSReader();
         }
 
         private void ViewTabs_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

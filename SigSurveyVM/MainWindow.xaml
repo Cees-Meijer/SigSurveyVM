@@ -61,14 +61,14 @@
 
         <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Margin="0,10,0,0" Width="4" Grid.RowSpan="2"/>
         <Grid Margin="0,1,5,243" Grid.Row="1">
-            <oxy:Plot  x:Name="TrackPlot"  Title="{Binding Title}" PlotType="Cartesian" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,-43">
+            <oxy:Plot  x:Name="TrackPlot"  Title="{Binding Title}" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,-43">
                 <oxy:Plot.Axes>
-                    <oxy:LinearAxis  Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Solid" MajorGridlineColor="Gray" MinorGridlineColor="Gray"/>
-                    <oxy:LinearAxis  Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash"  MajorGridlineColor="Gray" MinorGridlineColor="Gray"/>
+                    <oxy:LinearAxis x:Name="YAxis" Minimum="{Binding YAxisMinimum}" Maximum="{Binding YAxisMaximum}" Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Solid" MajorGridlineColor="Gray" MinorGridlineColor="Gray"/>
+                    <oxy:LinearAxis x:Name="XAxis" Minimum="{Binding XAxisMinimum}" Maximum="{Binding XAxisMaximum}" Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash"  MajorGridlineColor="Gray" MinorGridlineColor="Gray"/>
 
                 </oxy:Plot.Axes >
                 <oxy:Plot.Series>
-                    <oxy:LineSeries x:Name="TrackPlotSeries" ItemsSource="{Binding Points}"/>
+                    <oxy:LineSeries x:Name="TrackPlotSeries"  Color="White" ItemsSource="{Binding Points}"/>
                 </oxy:Plot.Series>
             </oxy:Plot>
         </Grid>

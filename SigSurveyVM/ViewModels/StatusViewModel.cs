@@ -18,10 +18,10 @@ namespace SigSurveyVM.ViewModels
             GPS_StatusText = "GPS Status messages";
         }
 
-        public string AD2CP_StatusText { get { return _AD2CP_StatusText; } set { _AD2CP_StatusText = value; OnPropertyChanged("AD2CP_StatusText"); } }
-        public string GPS_StatusText { get { return _GPS_StatusText; } set { _GPS_StatusText = value; OnPropertyChanged("GPS_StatusText"); } }
+        public string AD2CP_StatusText { get { return _AD2CP_StatusText; } set { _AD2CP_StatusText = value; RaisePropertyChanged("AD2CP_StatusText"); } }
+        public string GPS_StatusText { get { return _GPS_StatusText; } set { _GPS_StatusText = value; RaisePropertyChanged("GPS_StatusText"); } }
 
-        private void OnPropertyChanged(string propertyName)
+        private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

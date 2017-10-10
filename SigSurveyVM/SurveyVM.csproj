@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AD2CP.cs" />
+    <Compile Include="NMEADecoder.cs" />
     <Compile Include="ViewModels\SpectrogramViewModel.cs" />
     <Compile Include="ViewModels\StatusViewModel.cs" />
     <Compile Include="ViewModels\TrackPlotViewModel.cs" />
