@@ -56,11 +56,15 @@ namespace SurveyVM
         {
             AD2CP_Header Header = new AD2CP_Header();
             AD2CP_DataFormat3 ADCP_Burst = new AD2CP_DataFormat3();
+            AD2CP_BottomTrack ADCP_BT = new AD2CP_BottomTrack();
             MemoryStream ms = new MemoryStream(udp_received.Buffer);
             BinaryReader b = new BinaryReader(ms);
+
             Header.Read(b);
-            if (Header.ID == 0x15)
+            switch (Header.ID)
             {
+                case 0x15:
+            
                 ADCP_Burst.Read(b);
                 switch (SelectedChartView)
                 {
@@ -84,10 +88,19 @@ namespace SurveyVM
                         break;
                 }
                 //Console.WriteLine("V{0},{1},{2}", ADCP_Burst.velocityData[0][0], ADCP_Burst.velocityData[0][1], ADCP_Burst.velocityData[0][2]);
-               string adcp_text = string.Format("Ensemble: {0:000000} Time:{1:00}:{2:00}:{3:00}.{4:0000}\r\nAltimeter:{5},{6}", ADCP_Burst.ensembleCounter,ADCP_Burst.hour,ADCP_Burst.minute,ADCP_Burst.seconds,ADCP_Burst.microSeconds100,  ADCP_Burst.altimeterPresent, ADCP_Burst.altimeterDistance);
-               statusViewModel.AD2CP_StatusText = adcp_text;
+                string adcp_text = string.Format("Ensemble: {0:000000} Time:{1:00}:{2:00}:{3:00}.{4:0000}\r\nAltimeter:{5},{6}", ADCP_Burst.ensembleCounter, ADCP_Burst.hour, ADCP_Burst.minute, ADCP_Burst.seconds, ADCP_Burst.microSeconds100, ADCP_Burst.altimeterPresent, ADCP_Burst.altimeterDistance);
+                    statusViewModel.AD2CP_StatusText = adcp_text;
+                    break;
+                case 0x017:
+                    ADCP_BT.Read(b);
+                    string adcp_bt_text = string.Format($"Btrack X:{ADCP_BT.velocityData[0]:000000} Y:{ADCP_BT.velocityData[1]:000000} Z:{ADCP_BT.velocityData[2]:000000}");
+                    statusViewModel.AD2CP_StatusText += Environment.NewLine +  adcp_bt_text;
+                    break;
+
 
             }
+            
+
             //Console.WriteLine("Sync:{0:X} ID:{1:X} Size{2} Year:{3}", Header.Sync, Header.ID, Header.DataSize, ADCP_Burst.year + 1900);
         },
             // Specify a task scheduler from the current synchronization context
@@ -130,7 +143,7 @@ namespace SurveyVM
                 {
                     ProcessGPSData.Post(GPS_Data[Line]);
                     Thread.Sleep(100);
-;                }
+                }
             });
         }
 

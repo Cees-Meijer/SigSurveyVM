@@ -3,6 +3,13 @@ using System.IO;
 
 namespace AD2CPData
 {
+    public enum CoordinateSystemRawType
+    {
+        ENU = 0x00,
+        XYZ = 0x01,
+        Beam = 0x02
+    }
+
     public class AD2CP_Header
     {
         public byte Sync;
@@ -141,6 +148,8 @@ namespace AD2CPData
             distPresent = (headconfig & 0x100) != 0;
             fomPresent = (headconfig & 0x200) != 0;
 
+            Allocate(dataBeams);
+
             if (velPresent)
             {
                     for (int i = 0; i < dataBeams; i++)
@@ -199,7 +208,7 @@ namespace AD2CPData
         public byte minute;
         public byte seconds;
         public UInt16 microSeconds100;
-        public UInt16 soundSpeed;
+        public UInt16 soundSpeed;  
         public Int16 temperature;
         public UInt32 pressure;
         public UInt16 heading;
@@ -233,11 +242,22 @@ namespace AD2CPData
         public UInt16 ASTQuality;
         public Int16 ASTOffset_100uS;
         public float ASTPressure;
-        public byte[] altimeterSpares;
+        public float altimeterSpare1;
+        public float altimeterSpare2;
         public UInt32 altimeterSamples;
         public UInt16 altimeterSampleDistance;
         public Int16[] altimeterRawData;
         public UInt16[] echosounderData;
+        public float[,] AHRS;
+        public float[] AHRSDummy;
+        public float AHRSGyroX;
+        public float AHRSGyroY;
+        public float AHRSGyroZ;
+        public byte[] percentGoodData;
+        public Int16 stdDevPitch;
+        public Int16 stdDevRoll;
+        public Int16 stdDevHeading;
+        public Int16 stdDevPressure;
         public int dataCells;
         public int dataCoord;
         public int dataBeams;
@@ -254,7 +274,7 @@ namespace AD2CPData
         public bool echoSounderPresent;
         public bool AHRSPresent;
         public bool percentGoodPresent;
-        public bool StdDevPresent;
+        public bool stdDevPresent;
 
 
 
@@ -262,9 +282,10 @@ namespace AD2CPData
         {
             magnHxHyHz = new Int16[3];
             accl3D = new Int16[3];
-            altimeterSpares = new byte[8];
-
-    }
+            AHRS = new float[3,3];
+            AHRSDummy = new float[4];
+           
+        }
 
     public void Read(BinaryReader b)
         {
@@ -307,10 +328,10 @@ namespace AD2CPData
             error = b.ReadUInt32();
             status = b.ReadUInt32();
             ensembleCounter = b.ReadUInt32();
+
             dataCells = beams_cy_cells & 0x3FF;
             dataCoord = (beams_cy_cells & 0xC00) >> 10;
             dataBeams = (beams_cy_cells & 0xF000) >> 12;
-            Allocate((ushort)dataBeams, (ushort)dataCells);
             pressureSensor = (headconfig & 0x1) != 0;
             temperatureSensor = (headconfig & 0x2) != 0;
             compass = (headconfig & 0x4) != 0;
@@ -324,7 +345,10 @@ namespace AD2CPData
             echoSounderPresent = (headconfig & 0x800) != 0; 
             AHRSPresent = (headconfig & 0x1000) != 0; 
             percentGoodPresent = (headconfig & 0x2000) != 0;
-            StdDevPresent = (headconfig & 0x4000) != 0;
+            stdDevPresent = (headconfig & 0x4000) != 0;
+
+            Allocate((ushort)dataBeams, (ushort)dataCells);
+
             if (velPresent)
             {
                 for (int c = 0; c < dataBeams; c++)
@@ -358,6 +382,60 @@ namespace AD2CPData
                 }
             }
 
+            if (altimeterPresent)
+            {
+            altimeterDistance = b.ReadSingle();
+            altimeterQuality = b.ReadUInt16();
+            altimeterStatus = b.ReadUInt16();
+            }
+
+            if (ASTPresent)
+            {
+                ASTDistance = b.ReadSingle();
+                ASTQuality = b.ReadUInt16();
+                ASTOffset_100uS = b.ReadInt16();
+                ASTPressure = b.ReadInt32();
+                altimeterSpare1 = b.ReadSingle();
+                altimeterSpare2 = b.ReadSingle();
+            }
+            if (altimeterRawPresent)
+            {
+                altimeterSamples = b.ReadUInt32();
+                altimeterSampleDistance = b.ReadUInt16();
+
+                altimeterRawData = new Int16[altimeterSamples];
+                for ( UInt32 i = 0; i < altimeterSamples; i++) { altimeterRawData[i] = b.ReadInt16(); }
+            }
+            if (echoSounderPresent)
+            {
+                echosounderData = new UInt16[dataCells];
+                for (int i = 0; i < dataCells; i++) { echosounderData[i] = b.ReadUInt16(); }
+            }
+            if (AHRSPresent)
+            {
+                for (int row = 0; row < 3; row++)
+                {
+                    for (int col = 0; col < 3; col++)
+                    {
+                        AHRS[row, col] = b.ReadSingle();
+                    }
+                }
+                AHRSGyroX = b.ReadSingle();
+                AHRSGyroY = b.ReadSingle();
+                AHRSGyroZ = b.ReadSingle();
+            }
+            if (percentGoodPresent)
+            {
+                percentGoodData = new byte[dataCells];
+                for (int i = 0; i < dataCells; i++) { percentGoodData[i] = b.ReadByte(); }
+            }
+            if (stdDevPresent)
+            {
+                stdDevPitch = b.ReadInt16();
+                stdDevRoll = b.ReadInt16();
+                stdDevHeading = b.ReadInt16();
+                stdDevPressure = b.ReadInt16();
+            }
         }
         /// Allocate internal memory for the given number of beams / bins
         /// </summary>
